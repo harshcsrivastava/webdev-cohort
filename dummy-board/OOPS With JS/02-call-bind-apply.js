@@ -22,4 +22,16 @@ Math.max.apply(null, bills)
 Math.max(...bills)
 
 
+function reportDelivery(location, status){
+    return `${this.name} delivers to ${location}: ${status} `
+}
+
+const deliveryBoy = {name: "Ranveer"}
+console.log("Call: ",reportDelivery.call(deliveryBoy, "Lyari", "Ordered"));
+console.log("Apply: ",reportDelivery.apply(deliveryBoy, ["Mars", "Completed"]));
+console.log("Bind: ",reportDelivery.bind(deliveryBoy, "Lyari", "Ordered"));
+
+const bindRep = reportDelivery.bind(deliveryBoy)
+console.log(bindRep("Delhi", "Pick-Up"));
+
 
