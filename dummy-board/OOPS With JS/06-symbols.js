@@ -58,4 +58,31 @@ const governmentSchme = {
 console.log(+governmentSchme); // when number
 console.log(`${governmentSchme}`); //when string
 
+/* 
+A symbol is primitive unique value with an optional description. They are alwats unique.
 
+Use Case : Hidden Properties, skipped by for..in loop
+
+Global Symbol ⇒ they exists in global symbol registry
+
+We can access it by `keyFor`*/
+
+
+let org = Symbol.for("ChaiCode")
+let company = Symbol.for("ChaiCode")
+// both are same when org === company
+
+console.log(Symbol.keyFor(org))
+
+/* 
+
+
+System Symbols
+
+- Symbol.iterator
+- Symbol.toPrimitive
+
+> Technically, symbols are not 100% hidden. There is built-in method `Objec.getOwnPropertySymbols(obj)`
+>
+
+*/
