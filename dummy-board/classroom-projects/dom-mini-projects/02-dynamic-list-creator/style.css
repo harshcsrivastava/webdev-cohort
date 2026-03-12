@@ -34,6 +34,12 @@ input{
     color:white;
 }
 
+input:focus,
+input:focus-visible{
+    box-shadow:0 0 0 3px rgba(76, 175, 80, 0.35);
+    border:1px solid #4caf50;
+}
+
 button{
     padding:10px 15px;
     border:none;
@@ -41,6 +47,11 @@ button{
     background:#4caf50;
     color:white;
     cursor:pointer;
+}
+
+button:focus-visible{
+    outline:2px solid #ffffff;
+    outline-offset:2px;
 }
 
 button:hover{
@@ -71,7 +82,39 @@ li{
     border-radius:4px;
     cursor:pointer;
 }
-
 .delete:hover{
     background:#c62828;
+}
+
+.edit{
+    background:#a134e5;
+    border:none;
+    color:white;
+    padding:5px 10px;
+    border-radius:4px;
+    cursor:pointer;
+}
+.edit:hover{
+    background:#8022ba;
+}
+
+.done{
+    background:#31d68c;
+    border:none;
+    color:white;
+    padding:5px 10px;
+    border-radius:4px;
+    cursor:pointer;
+}
+.done:hover{
+    background:#25a76c;
+}
+
+.focus{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:4px;
+    outline:2px solid #4caf50;
+    outline-offset:2px;
+    background:#353535;
 }
