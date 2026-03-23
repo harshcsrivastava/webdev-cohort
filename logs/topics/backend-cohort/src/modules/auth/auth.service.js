@@ -3,7 +3,15 @@
 // Always with capital-letter
 import ApiError from "../../utils/api-error";
 import User from "./auth.models.js";
-import { generateResetToken } from "./jwt.utils.js";
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    generateResetToken,
+    verifyRefreshToken,
+} from "./jwt.utils.js";
+
+const hashedToken = (token) =>
+    crypto.createHash("sha").update(token).digest("hex");
 
 const register = async ({ name, email, password, role }) => {
     // do user registration
@@ -29,6 +37,79 @@ const register = async ({ name, email, password, role }) => {
     delete userObj.verificationToken;
 
     return userObj;
+};
+
+const login = async ({ email, password }) => {
+    // take email and verify in DB
+    // check if password is correct
+    // check isVerified or not
+    // generate a access token and refresh token
+
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) throw ApiError.unauthorized();
+
+    // somehow i check password
+
+    if (!user.isVerified) throw ApiError.forbidden("Verift email before login");
+
+    // send user access and bearer token
+    const accessToken = generateAccessToken({ id: user._id, role: user.role });
+    const refreshToken = generateRefreshToken({ id: user._id });
+
+    user.refreshToken = hashedToken(refreshToken);
+    await user.save({ validateBeforeSave: false });
+
+    const userObj = user.toObject();
+
+    delete userObj.password;
+    delete userObj.refreshToken;
+    // TODO : Send as cookie
+
+    return { user: userObj, accessToken, refreshToken };
+};
+
+const refresh = async (token) => {
+    if (!token) throw ApiError.unauthorized("Refresh token missing");
+    const decoded = verifyRefreshToken(token);
+
+    const user = await User.findById(decoded.id).select("+refreshToken");
+
+    if (!user) throw ApiError.unauthorized("User not found");
+
+    if (user.refreshToken !== hashedToken(token)) {
+        throw ApiError.unauthorized("Invalid refresh token");
+    }
+
+    const accessToken = generateAccessToken({ id: user._id, role: user.role });
+
+    return { accessToken };
+};
+
+// logout
+// remove refreshtoken from db
+const logout = async (userId) => {
+    // const user = await User.findById(userId)
+    // if (!user) throw ApiError.unauthorized("User not found");
+
+    // user.refreshToken = undefined
+    // await user.save({validationBeforeSafe: false})
+
+    await User.findByIdAndUpdate(userId, { refreshToken: null });
+};
+
+// user verify kro
+
+const forgotPassword = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) throw ApiError.notFound("No account with that email");
+
+    const { rawToken, hashedToken } = generateResetToken();
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; //15min
+
+    await User.save();
+
+    // TODO: mail bhejna
 };
 
 export { register };
