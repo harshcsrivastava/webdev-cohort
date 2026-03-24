@@ -3,6 +3,7 @@
 // Always with capital-letter
 import ApiError from "../../utils/api-error";
 import User from "./auth.models.js";
+import crypto from "crypto";
 import {
     generateAccessToken,
     generateRefreshToken,
@@ -50,7 +51,7 @@ const login = async ({ email, password }) => {
 
     // somehow i check password
 
-    if (!user.isVerified) throw ApiError.forbidden("Verift email before login");
+    if (!user.isVerified) throw ApiError.forbidden("Verify email before login");
 
     // send user access and bearer token
     const accessToken = generateAccessToken({ id: user._id, role: user.role });
@@ -69,7 +70,7 @@ const login = async ({ email, password }) => {
 };
 
 const refresh = async (token) => {
-    if (!token) throw ApiError.unauthorized("Refresh token missing");
+    if (!token) throw ApiError.unauthorized("Refresh ntoken missing");
     const decoded = verifyRefreshToken(token);
 
     const user = await User.findById(decoded.id).select("+refreshToken");

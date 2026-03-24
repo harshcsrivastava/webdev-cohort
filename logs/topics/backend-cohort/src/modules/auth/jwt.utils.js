@@ -17,7 +17,7 @@ const generateRefreshToken = (payload) => {
 }
 
 const verifyRefreshToken = (token) => {
-    return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_EXPIRATION)
+    return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET)
 }
 
 const generateResetToken = () => {

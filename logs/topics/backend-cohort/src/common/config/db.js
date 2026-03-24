@@ -4,7 +4,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI)
 
     // What is inside this
-    console.log(`MongoDB conneced: ${conn.connect.hosy}`);
+    console.log(`MongoDB conneced: ${conn.connection.host}`);
     
 }
 

@@ -11,4 +11,4 @@ class RegisterDto extends BaseDto{
 }
 
 
-export default RegisterDto
+export default RegisterDto      
