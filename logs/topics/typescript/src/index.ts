@@ -9,5 +9,15 @@ console.log(greet(username));
 
 console.log(getChai("medium"));
 
+enum ChaiType{
+    MASALA = "Masala",
+    GINGER = "ginger"
+}
 
+function makeChai(type: ChaiType){
+    console.log(`Making: ${type}`);
+    
+}
+
+makeChai(ChaiType.MASALA)
 
