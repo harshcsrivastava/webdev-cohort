@@ -6,7 +6,7 @@ import {
     generateRefreshToken,
     verifyRefreshToken,
     generateResetToken,
-} from "./jwt.utils.js";
+} from "../../utils/jwt.utils.js";
 
 const hashedFn = (token) =>
     crypto.createHash("sha").update(token).digest("hex");
