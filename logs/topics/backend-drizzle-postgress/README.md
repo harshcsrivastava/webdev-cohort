@@ -9,4 +9,9 @@ ORM (Object-Relational Mapper) is very common because it saves you from writing 
 - ObjectionJS - built on knex - offers eager loading(to join 3-4 table, etc)
 - prisma ORM - doesn't tell how, control lelega and kam krdegi lekin pata nhi chlega kaise
 
-
+---
+### Notes
+- Uncomment     ```typescript // For nodejs:
+    "lib": ["esnext"],
+    "types": ["node"],
+    // and npm install -D @types/node``` 
