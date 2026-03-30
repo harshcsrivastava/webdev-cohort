@@ -10,28 +10,37 @@ import {
     generateResetToken,
     verifyRefreshToken,
 } from "../../utils/jwt.utils.js";
+import {
+    sendVerificationEmail,
+    sendResetPasswordEmail,
+} from "../../common/config/email.js";
 
-const hashedToken = (token) =>
-    crypto.createHash("sha").update(token).digest("hex");
+const hashToken = (token) =>
+    crypto.createHash("sha256").update(token).digest("hex");
 
 const register = async ({ name, email, password, role }) => {
     // do user registration
     const existingUser = await User.findOne({ email }); //ek bhi user jiska email same ho
     if (existingUser) throw ApiError.conflict("Email already exists");
 
-    const { rawToken, hashedToken } = generateResetToken();
+    const { rawToken, hashToken } = generateResetToken();
     // rawToken - user ko mail krdenge
-    // hashedToken - DB me jayega
+    // hashToken - DB me jayega
 
     const user = await User.create({
         name,
         email,
         password,
         role,
-        verificationToken: hashedToken,
+        verificationToken: hashToken,
     });
 
     // TODO: send an email to user with token: rawToken
+    try {
+        await sendVerificationEmail(email, token);
+    } catch (error) {
+        console.log(error);
+    }
 
     const userObj = user.toObject();
     delete userObj.password;
@@ -50,6 +59,8 @@ const login = async ({ email, password }) => {
     if (!user) throw ApiError.unauthorized();
 
     // somehow i check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) throw ApiError.unauthorized("Invalid email or password");
 
     if (!user.isVerified) throw ApiError.forbidden("Verify email before login");
 
@@ -57,14 +68,12 @@ const login = async ({ email, password }) => {
     const accessToken = generateAccessToken({ id: user._id, role: user.role });
     const refreshToken = generateRefreshToken({ id: user._id });
 
-    user.refreshToken = hashedToken(refreshToken);
+    user.refreshToken = hashToken(refreshToken);
     await user.save({ validateBeforeSave: false });
 
     const userObj = user.toObject();
-
     delete userObj.password;
     delete userObj.refreshToken;
-    // TODO : Send as cookie
 
     return { user: userObj, accessToken, refreshToken };
 };
@@ -77,7 +86,7 @@ const refresh = async (token) => {
 
     if (!user) throw ApiError.unauthorized("User not found");
 
-    if (user.refreshToken !== hashedToken(token)) {
+    if (user.refreshToken !== hashToken(token)) {
         throw ApiError.unauthorized("Invalid refresh token");
     }
 
@@ -99,18 +108,82 @@ const logout = async (userId) => {
 };
 
 // user verify kro
+const verifyEmail = async (token) => {
+    const trimmed = String(token).trim();
+    if (!trimmed) {
+        throw ApiError.badRequest("Invalid or expired verification token");
+    }
+
+    // DB stores SHA256(raw). Links / email use the raw token — we hash for lookup.
+    // If you paste the hash from MongoDB into Postman, hashing again would not match;
+    // so we also try a direct match on the stored value.
+    const hashedInput = hashToken(trimmed);
+    let user = await User.findOne({ verificationToken: hashedInput }).select(
+        "+verificationToken",
+    );
+    if (!user) {
+        user = await User.findOne({ verificationToken: trimmed }).select(
+            "+verificationToken",
+        );
+    }
+    if (!user)
+        throw ApiError.badRequest("Invalid or expired verification token");
+
+    await User.findByIdAndUpdate(user._id, {
+        $set: { isVerified: true },
+        $unset: { verificationToken: 1 },
+    });
+
+    return user;
+};
 
 const forgotPassword = async (email) => {
     const user = await User.findOne({ email });
     if (!user) throw ApiError.notFound("No account with that email");
 
-    const { rawToken, hashedToken } = generateResetToken();
-    user.resetPasswordToken = hashedToken;
+    const { rawToken, hashToken } = generateResetToken();
+    user.resetPasswordToken = hashToken;
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; //15min
 
     await User.save();
 
     // TODO: mail bhejna
+    try {
+        await sendResetPasswordEmail(email, rawToken);
+    } catch (err) {
+        console.error("Failed to send reset email:", err.message);
+    }
 };
 
-export { register };
+const resetPassword = async (token, newPassword) => {
+    const hashedToken = hashToken(token);
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { $gt: Date.now() },
+    }).select("+resetPasswordToken +resetPasswordExpires");
+
+    if (!user) throw ApiError.badRequest("Invalid or expired reset token");
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+};
+
+const getMe = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) throw ApiError.notFound("No account with that email");
+    return user;
+};
+
+export {
+    register,
+    login,
+    refresh,
+    logout,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+    getMe,
+};

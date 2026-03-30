@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
     {
@@ -59,6 +60,21 @@ const userSchema = new mongoose.Schema(
     },
     { timestamps: true },
 );
+
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return next(); // ye tab bhi kick-in kare, jab password feel touch ho rha, otherwise return
+
+    // hashing hota to kuch rounds chalte, salt b/w 8-12
+    this.password = await bcrypt.hash(this.password, 12);
+    
+});
+
+// In programming, a “hook” is an extension point — a predefined spot in the code where developers can insert custom logic to modify or extend behavior
+// without changing the original source. Hooks intercept or augment execution flow, making systems more flexible and customizable
+userSchema.methods.comparePassword = async function (clearTextPassword) {
+    //jitne chahe methods daal skte
+    return bcrypt.compare(clearTextPassword, this.password); //direct compare => fast
+};
 
 export default mongoose.model("User", userSchema);
 // Users -> users (lowercase and plural)
