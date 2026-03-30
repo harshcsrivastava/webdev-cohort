@@ -1,0 +1,34 @@
+services:
+
+# create "docker-compose.yml"
+# docker ps - check running containers
+# docker images - docker images
+# docker compose up - Pull up a docker image, add "-d" to run in detached mode
+# docker compose down - Delete container
+
+
+
+# kuch bhi naam => postgresdb
+# go to hub.docker.com to search for postgres images(postgres:17 version) 
+# PORTS => postgres usually 5432 pe chalta to you can map it at 1234 like "1234:5432"
+#          usually default prefer krte
+# usually service jab delete krte to container ka data udjayega, therefore we will create a virtual volume
+# /var/lib/postgresql/data => where postgress always save data <linking this to a local folder: volume mapping>
+
+
+  postgresdb:
+    image: postgres:17
+
+    ports:
+      - '5432:5432'
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chaicode #DB_NAME
+
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data' #stored in local volume
+
+volumes:
+  postgres_data:
