@@ -25,6 +25,15 @@ DB_MIGRATION : never `npx drizzle-kit push`
     - "db:generate": "drizzle-kit generate", => pahle banao
     - "db:migrate": "drizzle-kit migrate" => then push
 
+`db.select().from(userTable).where(eq(userTable.email, email))` => query pattern
+
+### Rainbow Table
+iloveyou --> 123 (not reversible)
+to we can create a table => common-password list.
+kabhi rainbow table se match na ho thats why we add salt in password
+
+
+
 ### Notes
 - Uncomment     ```typescript // For nodejs:
     "lib": ["esnext"],
@@ -32,3 +41,5 @@ DB_MIGRATION : never `npx drizzle-kit push`
     // and npm install -D @types/node``` 
 - For Docker, refer ```docker-compose.yml```
 - tsconfig rone lagega if src ke bahar koi .ts hai, therefore .js krdo drizzle ko
+- DTO via ZOD
+
