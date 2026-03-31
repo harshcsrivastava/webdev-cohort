@@ -12,4 +12,4 @@ authRouter.post('/sign-up', authenticationController.handleSignup.bind(authentic
 authRouter.post('/sign-in', authenticationController.handleSignin.bind(authenticationController));
 
 
-authRouter.get('/me',authenticationMiddleware(), restrictToAuthenticatedUser(), authenticationController.handleMe.bind(authenticationController));
+authRouter.get('/me', restrictToAuthenticatedUser(), authenticationController.handleMe.bind(authenticationController));
