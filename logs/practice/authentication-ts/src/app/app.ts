@@ -1,8 +1,9 @@
 import express from "express";
 import type { Express, NextFunction, Request, Response } from "express";
 import ApiResponse from "../utils/ApiResponse.js";
-import errorHandler from "../utils/middleware/error-middleware.js";
+import errorHandler from "../utils/middleware/error.middleware.js";
 import ApiError from "../utils/ApiError.js";
+import { authRouter } from "./auth/authentication.routes.js";
 
 export function createExpressApplication(): Express {
     const app = express();
@@ -21,6 +22,8 @@ export function createExpressApplication(): Express {
             reason: `Too Loaded`,
         });
     });
+
+    app.use("/auth", authRouter);
 
     // more middleware
     app.use(errorHandler);
