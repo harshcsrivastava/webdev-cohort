@@ -9,7 +9,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 // user: id, firstName, lastName, email, password, salt, emailVerified, role, refreshToken
-const roleEnum = pgEnum("role", ["customer", "seller", "admin"]);
+export const roleEnum = pgEnum("role", ["customer", "seller", "admin"]);
+export type UserRole = (typeof roleEnum.enumValues)[number];
 export const userTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
 
@@ -23,7 +24,7 @@ export const userTable = pgTable("users", {
     salt: text("salt"),
 
     role: roleEnum("role").default("customer").notNull(),
-    
+
     verificationToken: text("verification_token"),
     refreshToken: text("refresh_token"),
     resetPasswordToken: text("reset_password_token"),
