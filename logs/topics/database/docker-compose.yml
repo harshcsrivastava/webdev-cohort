@@ -1,0 +1,19 @@
+services:
+    postgresdb:
+        image: postgres:17
+
+        ports:
+            - "5432:5432"
+
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: sql-class #DB_NAME
+
+        volumes:
+            - "postgres_data:/var/lib/postgresql/data" #stored in local volume
+
+volumes:
+    postgres_data:
+
+# postgres://postgres:postgres@localhost:5432/sql-class
