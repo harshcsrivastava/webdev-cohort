@@ -1,0 +1,94 @@
+title Instagram Thrift Store
+
+customers[icon: user, color: 014473]{
+  customer_id pk
+  name string
+  address string
+  phone int
+  
+}
+
+orders [icon: shopping-cart, color: 03613E]{
+  order_id pk 
+  order_total int
+  customer_id int fk
+  created_at date
+}
+
+payments [icon: rupee, color: 074205]{
+  payment_id pk
+  payment_method enum["cod", "online"]
+  status enum["pending", "completed", "failed"]
+  order_id int fk
+ }
+
+shipping [icon: truck, color: 074205]{
+  shipping_id pk
+  courier_service string
+  shipping_status enum["shipped", "delivered"]
+  order_id int fk
+}
+
+order_items [icon: shopping-cart, color: 615B03]{
+  id pk
+  price_on_purchase int
+  quantity int
+  order_id int fk
+  inventory_id int fk
+}
+products [icon: shopping-bag, color: 03613E]{
+  product_id pk
+  name string
+  description string
+  category enum
+  material enum
+  is_thrifted boolean
+  price int
+}
+
+thrift_products[icon: watch, color: 613803]{
+  id pk
+  brand string
+  type string
+  product_id int fk
+}
+handmade_products[icon: handshake, color: 613803]{
+  id pk 
+  product_id int fk
+}
+
+
+inventory [icon: gcp-os-inventory-management, color: 613803]{
+  inventory_id pk
+  size enum
+  condition enum
+  color string
+  stock int //handmade
+  is_available boolean //thrift
+  product_id int fk
+}
+// RULE:
+// if product.is_thrifted = true:
+//    - is_available is used
+//    - stock is ignored
+//
+// if product.is_thrifted = false:
+//    - stock is used
+//    - is_available is ignored
+
+// Transaction
+payments.order_id - orders.order_id
+shipping.order_id - orders.order_id
+
+
+
+customers.customer_id < orders.customer_id
+orders.order_id < order_items.order_id
+
+// linking order_items to inventory  to remove the precise item
+order_items.inventory_id > inventory.inventory_id
+
+// Product Relation
+inventory.product_id - products.product_id
+thrift_products.product_id - products.product_id
+handmade_products.product_id - products.product_id 
