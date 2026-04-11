@@ -1,0 +1,129 @@
+title Fitness Influencer Coaching Platform
+
+// =======================
+// Clients & Trainers
+// =======================
+
+clients[icon: user, color: #536b02]{
+  client_id pk
+  name string
+  address string
+  phone int
+  dob date
+  joined_at date
+  trainer_id int fk
+}
+// A client has a single trainer
+
+trainers[icon: dumbbell, color: #536b02]{
+  trainer_id pk
+  name string
+  address string
+  salary int
+  shift_type enum["morning", "evening", "night"]
+}
+// A trainer has many clients
+
+clients.trainer_id > trainers.trainer_id
+
+
+// =======================
+// Trainer Logs & Check-ins
+// =======================
+
+trainer_logs[icon: document, color: #085385]{
+  id pk
+  note string
+  created_at date
+  trainer_id int fk
+  subscription_id int fk
+}
+// Trainer remarks linked to trainer & subscription
+trainer_logs.trainer_id - trainers.trainer_id
+subscriptions.subscription_id - trainer_logs.subscription_id
+
+client_checkins[icon: document, color: #085385]{
+  checkin_id pk
+  weight int
+  height int
+  body_measurement string
+  checkin_date date
+  subscription_id int fk
+}
+// Progress tracking
+subscriptions.subscription_id - client_checkins.subscription_id
+
+
+// =======================
+// Plans & Subscriptions
+// =======================
+
+plans[icon: coffee, color: #704b01]{
+  plan_id pk
+  plan_type enum["consultation","starter","long-term"]
+}
+// One client has one plan; a plan can be assigned to multiple clients
+
+subscriptions[icon: handshake, color: #01700e]{
+  subscription_id pk
+  price_at_purchase
+  start_date date
+  end_date date
+  client_id int fk
+  plan_id int fk
+}
+// Linking clients and plans
+clients.client_id - subscriptions.client_id
+plans.plan_id - subscriptions.plan_id
+
+
+// =======================
+// Session Logs
+// =======================
+
+session_logs[icon: pen-tool, color: red]{
+  session_id pk
+  trainer_id fk
+  scheduled_at datetime
+  type enum["consultation", "live_session"]
+  status enum["scheduled", "completed", "cancelled"]
+  client_id int fk
+  subscription_id int fk
+}
+// Linking sessions
+session_logs.client_id - clients.client_id
+session_logs.trainer_id - trainers.trainer_id
+subscriptions.subscription_id - session_logs.subscription_id
+
+
+// =======================
+// Payments
+// =======================
+
+payments[icon: rupee, color: #01700e]{
+  payment_id pk
+  banking_name string
+  method enum["upi", "card", "netbanking"]
+  status enum["pending", "completed", "failed"]
+  paid_at date
+  subscription_id int fk
+}
+// Payment linked to subscription
+subscriptions.subscription_id - payments.subscription_id
+
+
+// =======================
+// Diet & Workout Plans
+// =======================
+
+diet_plans[icon: apple, color:#8f010b]{
+  diet_id pk
+  plan_id int fk
+}
+plans.plan_id - diet_plans.plan_id
+
+workout_plans[icon: fitbit, color:#8f010b]{
+  workout_id pk
+  plan_id int fk
+}
+plans.plan_id - workout_plans.plan_id
