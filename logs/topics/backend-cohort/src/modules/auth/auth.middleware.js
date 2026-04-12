@@ -1,4 +1,4 @@
-import ApiError from "../../utils/api-error";
+import ApiError from "../../utils/api-error.js";
 import { verifyAccessToken } from "../../utils/jwt.utils.js";
 import User from "./auth.models.js";
 

@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-    if (!this.isModified("password")) return next(); // ye tab bhi kick-in kare, jab password feel touch ho rha, otherwise return
+    if (!this.isModified("password")) return; // ye tab bhi kick-in kare, jab password feel touch ho rha, otherwise return
 
     // hashing hota to kuch rounds chalte, salt b/w 8-12
     this.password = await bcrypt.hash(this.password, 12);

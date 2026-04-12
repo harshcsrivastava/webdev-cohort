@@ -1,7 +1,7 @@
 // Business logic should always be on service in Springboot, nextjs, rubyRails
 // Jiska kaam uska schema ko bula lo
 // Always with capital-letter
-import ApiError from "../../utils/api-error";
+import ApiError from "../../utils/api-error.js";
 import User from "./auth.models.js";
 import crypto from "crypto";
 import {
@@ -62,7 +62,7 @@ const login = async ({ email, password }) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) throw ApiError.unauthorized("Invalid email or password");
 
-    if (!user.isVerified) throw ApiError.forbidden("Verify email before login");
+    // if (!user.isVerified) throw ApiError.forbidden("Verify email before login");
 
     // send user access and bearer token
     const accessToken = generateAccessToken({ id: user._id, role: user.role });
