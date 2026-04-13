@@ -3,6 +3,7 @@ import express from "express";
 import authRoute from "./modules/auth/auth.routes.js"
 import ApiError from "./utils/api-error.js";
 import ApiResponse from "./utils/api-response.js";
+import ownerRoutes from "./modules/ipl-ms/routes/owner.routes.js"
 
 const app = express();
 
@@ -14,6 +15,8 @@ app.get("/health", (req, res) => {
   return ApiResponse.ok(res, "Up and Runnning")
 })
 app.use("/api/auth", authRoute)
+app.use("/api/owners", ownerRoutes)
+
 
 // Catch-all for undefined routes
 app.all("{*path}", (req, res) => {
