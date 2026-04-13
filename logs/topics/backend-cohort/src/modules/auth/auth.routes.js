@@ -7,14 +7,15 @@ import LoginDto from "./dto/login.dto.js";
 import ForgotPasswordDto from "./dto/forgot-password.dto.js";
 import ResetPasswordDTO from "./dto/reset-password.dto.js";
 import ApiResponse from "../../utils/api-response.js";
+import { upload } from "../../common/middleware/multer.middleware.js";
 const router = Router();
 
 // router.post("/add-blog", ) //agar har blog me authenticate karunga to bahut chaotic hoga, therefore we can use isLoffedIn() nam se middleware banadu
 // refresh, resetPassword, verifyEmail
 
 router.get("/health", (req, res) => {
-  return ApiResponse.ok(res, "Up and Runnning")
-})
+    return ApiResponse.ok(res, "Auth Up and Runnning");
+});
 router.post("/register", validate(RegisterDto), controller.register);
 router.post("/login", validate(LoginDto), controller.login);
 router.post("/refresh-token", controller.refreshToken);
@@ -29,6 +30,13 @@ router.put(
     "/reset-password/:token",
     validate(ResetPasswordDTO),
     controller.resetPassword,
+);
+
+router.post(
+    "/avatar",
+    authenticate,
+    upload.single("avatar"),
+    controller.uploadAvatar,
 );
 router.get("/me", authenticate, controller.getMe);
 

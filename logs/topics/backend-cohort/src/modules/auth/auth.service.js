@@ -14,6 +14,8 @@ import {
     sendVerificationEmail,
     sendResetPasswordEmail,
 } from "../../common/config/email.js";
+import fs from "node:fs";
+import imagekit from "../../common/config/imagekit.js";
 
 const hashToken = (token) =>
     crypto.createHash("sha256").update(token).digest("hex");
@@ -177,6 +179,45 @@ const getMe = async (userId) => {
     return user;
 };
 
+const avatarUpload = async (userId, file) => {
+    try {
+        //bigfile ko chunk me use krne pe stream use krte hai
+        const fileStream = fs.createReadStream(file.path);
+        // abhi disk me kr rhe but usually memory me load krte and cloud me save krte hai
+        // dont ever store image in DB
+        const uploadResponse = await imagekit.files.upload({
+            file: fileStream,
+            fileName: file.filename,
+            folder: "/user-avatars",
+        });
+
+        // if we dont want to use imagekit(cloudinary, imagething) we will configure upload as necessary
+
+        await User.findByIdAndUpdate(
+            userId,
+            {
+                avatar: uploadResponse.url,
+            },
+            { new: true },
+        );
+
+        fs.unlinkSync(file.path);
+
+        return {
+            url: uploadResponse.url,
+            fileId: uploadResponse.fileId,
+        };
+    } catch (error) {
+        try {
+            if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        } catch (err) {
+            console.log("Error in deleting file: ", err);
+        }
+
+        throw error;
+    }
+};
+
 export {
     register,
     login,
@@ -186,4 +227,5 @@ export {
     forgotPassword,
     resetPassword,
     getMe,
+    avatarUpload,
 };

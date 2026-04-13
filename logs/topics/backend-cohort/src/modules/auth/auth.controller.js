@@ -1,3 +1,4 @@
+import ApiError from "../../utils/api-error.js";
 import ApiResponse from "../../utils/api-response.js";
 import * as authService from "./auth.service.js";
 // Just call whatever is required
@@ -53,6 +54,20 @@ const getMe = async (req, res) => {
     ApiResponse.ok(res, "User profile", user);
 };
 
+const uploadAvatar = async (req, res) => {
+    try {
+        const file = req.file;
+        if (!file) throw ApiError.badRequest("File not uploaded by user");
+
+        const result = await authService.avatarUpload(req.user.id, file);
+        return ApiResponse.ok(res, "Avatar Lock and Loaded", {
+            avatarUrl: result.url,
+        });
+    } catch (error) {
+        throw ApiError.conflict(error.message || "Failed to upload");
+    }
+};
+
 export {
     register,
     login,
@@ -62,4 +77,5 @@ export {
     forgotPassword,
     resetPassword,
     getMe,
+    uploadAvatar,
 };
