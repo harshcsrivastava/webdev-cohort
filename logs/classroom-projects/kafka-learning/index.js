@@ -13,6 +13,16 @@ async function main() {
 
     io.attach(server);
 
+    io.on("connection", (socket) => {
+        console.log("Socket connected: ",socket.id);
+        socket.on("client:location:update", locationData => {
+            const {latitude, longitude} = locationData;
+            console.log(locationData);
+            
+        })
+        
+    })
+
 
     app.use(express.static(path.resolve("./public")))
     app.get("/health", (_, res) => {
