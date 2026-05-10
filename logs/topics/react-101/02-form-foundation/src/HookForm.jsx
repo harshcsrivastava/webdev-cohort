@@ -5,6 +5,7 @@ const HookForm = () => {
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors, isSubmitSuccessful, isSubmitting },
         getValues,
     } = useForm({ defaultValues: { name: "Harsh" }, mode: "onTouched" });
