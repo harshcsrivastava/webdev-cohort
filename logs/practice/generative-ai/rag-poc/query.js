@@ -37,7 +37,23 @@ async function query(userQuery) {
     userQuery.toLowerCase().includes("chapter");
   const topK = isSummaryRequest ? 25 : 5; // Pull much more context for broad summaries
 
-  const vectorRetriever = vectorStore.asRetriever({ k: topK }); // top ke sirf at max 5 leke ana ya 25 leke ana based on summary request
+  const chapterMatch = userQuery.match(/(?:chapter|ch\.)\s*(\d+)/i);
+  let retrieverOptions = { k: topK };
+
+  if (chapterMatch) {
+    const chapterNumber = parseInt(chapterMatch[1], 10);
+
+    // 2. Manipulate retriever configurations by injecting a strict payload filter
+    retrieverOptions.filter = {
+      must: [
+        {
+          key: "metadata.chapter", // Path inside Qdrant point payload
+          match: { value: chapterNumber },
+        },
+      ],
+    };
+  }
+  const vectorRetriever = vectorStore.asRetriever(retrieverOptions); // top ke sirf at max 5 leke ana ya 25 leke ana based on summary request
   const results = await vectorRetriever.invoke(userQuery);
 
   // feed those chunks to LLM models
@@ -46,9 +62,7 @@ async function query(userQuery) {
   You are an expert in answering user queries based on the 
   provided context about the document. Do not answer 
   anything beyond what is provided.
-  
-  Always answer the user clearly, and append which page number and book name the information came from.
-  
+
   User Documents:
   ${results
     .map((e) => {
@@ -88,6 +102,7 @@ async function run() {
     "will this book help with learning about system design for interviews?",
   );
   await query("give me the summary of the chapter 1?");
+  await query("what is the book The_Art_Of_Laziness about?");
 }
 
 run().catch(console.error);
